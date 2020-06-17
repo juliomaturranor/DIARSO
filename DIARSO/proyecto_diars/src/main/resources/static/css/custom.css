@@ -27,6 +27,29 @@
  	position: relative;
  	top: -2px;
  }
+ .container-carrito-js{
+ 	margin-top: 50px;
+ }
+ .carrito-title{
+ 	margin-bottom: 50px;
+ }
+ .carrito-title small{
+ 	margin-left: 15px;
+ 	font-size: 60%;
+ }
+ .picture-cart img{
+ 	max-width: 30px;
+ }
+ .quantity-cart{
+ 	text-align: center;
+ }
+ .money-cart{
+ 	text-align: right;
+ }
+ .remove-cart{
+ 	text-align: center;
+ }
+ 
  
  
  
