@@ -19,3 +19,20 @@
     width: 30px;
     text-align: center;
  }
+ .navbar-left-options li a{
+ 	position: relative;
+ 	top: 4px;
+ }
+ .navbar-brand{
+ 	position: relative;
+ 	top: -2px;
+ }
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
