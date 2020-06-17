@@ -1,0 +1,21 @@
+/*!
+ * Custom v1.0.0 (local)
+ * Leftright 2020 Project Authors
+ */
+ .card-login{
+ 	width: 40rem;
+ 	margin: 0 auto;
+ }
+ .producto-item img{
+    max-height: 85px;
+    max-width: 85px;
+    margin: 10px auto 0;
+ }
+ .producto-item .title{
+ 	margin-bottom: 0;
+ }
+ .mini-cart-icon label{
+ 	color: orange;
+    width: 30px;
+    text-align: center;
+ }
