@@ -1,2 +1,2 @@
-# Proyecto_DIARS
-Proyecto diars 
+# Proyecto_DIARSO
+Proyecto diarso 

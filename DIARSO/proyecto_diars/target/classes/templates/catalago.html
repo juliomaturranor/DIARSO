@@ -13,8 +13,12 @@
 <script type="text/javascript" th:src="@{/js/jquery.cookie.js}"></script>
 <script th:src="@{/js/funciones.js}"></script>	
 </head>
+
+	
 <body>
+<div th:replace= "header :: myheader"></div> 
 	<div class="container">
+<<<<<<< HEAD
 		<div>
 			<nav class="navbar navbar-expand-lg navbar-dark bg-dark" >
 				<a class="navbar-brand" href="/catalogo">Bodega</a>
@@ -61,6 +65,9 @@
 			</nav>
 		</div>
 		<br>
+=======
+	  <br>
+>>>>>>> d3c5c5e5727209f4e4155f60af6f3e14c276c59c
 		<div class="row">
 			<a th:text="${usuario}"></a>
 			<div th:each="producto: ${productos}" th:if="${producto.estado == 1}">
@@ -77,10 +84,22 @@
 								th:text="${producto.descripcion}"></p>
 							<h5 class="text-danger d-flex justify-content-center price"
 								th:text="'S/.'+${producto.precio}"></h5>
+<<<<<<< HEAD
 							<div class="buttons text-center">
 								<button class="btn btn-primary add-to-cart" type="button" th:data-product="${producto}">Agregar a carrito</button>
 								<a th:href="@{/carrito}+${producto.idproducto}" class="btn btn-danger">Comprar</a>
 							</div>
+=======
+								<!-- 
+							<form th:action="@{/carrito}" th:object="${producto}" class="form-inline my-3 my-lg-1" method="POST" >
+								<input type="hidden" class="form-control mr-sm-2" th:value="${producto.idproducto}" th:name="idproducto">
+								<input type="hidden" class="form-control mr-sm-2" th:name="cantidad" th:value="1">
+								<button class="btn btn-primary" type="submit">Agregar a carrito</button>
+							</form>					
+							 -->	
+							<button class="btn btn-primary add-to-cart" type="button" th:data-productid="${producto.idproducto}">Agregar a carrito</button>
+							<a th:href="@{/carrito}" class="btn btn-danger">Comprar</a>
+>>>>>>> d3c5c5e5727209f4e4155f60af6f3e14c276c59c
 						</div>
 					</div>
 				</div>
