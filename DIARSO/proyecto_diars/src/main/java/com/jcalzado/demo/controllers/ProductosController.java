@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import com.jcalzado.demo.model.Carrito;
 import com.jcalzado.demo.model.Producto;
 import com.jcalzado.demo.model.Usuario;
 import com.jcalzado.demo.service.CategoriaService;
