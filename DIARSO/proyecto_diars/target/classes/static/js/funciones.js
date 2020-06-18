@@ -125,10 +125,47 @@ var diarsfy = {
 			$('.carrito-items-all').html(totalItems>0?('Tienes '+totalItems+' items'):'Tu carrito está vacío');
 			$('.carrito-items-table tbody').html(_table!==''?_table:'<tr><td colspan="6"></td></tr>');
 			$('.subtotal-cart').html(_this.formatoMoneda(totalPrice));
-			if(totalItems>0)
-				$('.irAlCheckout').removeAttr("disabled");
-			else
-				$('.irAlCheckout').attr("disabled", "disabled");
+			if(totalItems>0){
+				$('#vaciarCarrito').removeAttr("disabled");
+				$('#irAlCheckout').removeAttr("disabled");
+			}
+			else{
+				$('#vaciarCarrito').attr("disabled", "disabled");
+				$('#irAlCheckout').attr("disabled", "disabled");
+			}
+		}
+	},
+	renderCheckout: function renderCheckout(){
+		var _this = this;
+		if($('#table_items').length){
+			var carritojs = $.cookie('carritojs');
+			var _table = '', _summary = '';
+			if(typeof(carritojs)!=="undefined" && _this.isJSON(carritojs)){
+				var carrito = JSON.parse(carritojs);
+				for(var i=0; i<carrito.items.length; i++){
+					var row = carrito.items[i];
+					_table += '<div class="tr-row">';
+						_table += '<div class="tr-thumbnail">';
+							_table += '<div class="thumbnail">';
+								_table += '<img src="uploads/'+row.foto+'" alt="'+row.nombre+'" />';
+								_table += '<span class="quantity">'+row.cantidad+'</span>';
+							_table += '</div>';
+						_table += '</div>';
+						_table += '<div class="tr-description">';
+							_table += '<div class="emphasis">'+row.nombre+'</div>';
+							_table += '<div class="small">'+row.descripcion+'</div>';
+						_table += '</div>';
+						_table += '<div class="tr-price">';
+							_table += '<div class="money">'+_this.formatoMoneda(row.subtotal)+'</div>';
+						_table += '</div>';
+					_table += '</div>';
+				}
+				_summary += '<div class="subtotal"><span>Subtotal</span><span class="money">'+_this.formatoMoneda(carrito.total)+'</span></div>';
+				_summary += '<div class="impuestos"><span>Impuestos</span><span class="money">'+_this.formatoMoneda(0)+'</span></div>';
+				_summary += '<div class="total"><span>Total</span><span class="money">'+_this.formatoMoneda(carrito.total)+'</span></div>';
+			}
+			$('#table_items').html(_table!==''?_table:'');
+			$('#table_summary').html(_summary!==''?_summary:'');
 		}
 	},
 	vaciarCarrito: function vaciarCarrito(){
@@ -250,6 +287,86 @@ var diarsfy = {
 			if(typeof(_callback)==="function")
 				_callback(respuestaJS);
 		}, 1500);
+	}, 
+	procesarFormulario1: function procesarFormulario1(_callback){
+		var _this = this;
+		var respuestaJS = { processOk: false, mensaje: "" };
+		var validacionesOk = true;
+		var email = $('#email');
+		var nombre = $('#nombre');
+		var apellidos = $('#apellidos');
+		var dni = $('#dni');
+		var tipo_direccion = $('#tipo_direccion');
+		var direccion1 = $('#direccion1');
+		var direccion2 = $('#direccion2');
+		var recibe_pedido = $('#recibe_pedido');
+		
+		//validaciones
+		if(email.val()===''){
+			respuestaJS.mensaje = "El email es requerido";
+			validacionesOk = false;
+		}
+		if(nombre.val()===''){
+			respuestaJS.mensaje = "El nombre es requerido";
+			validacionesOk = false;
+		}
+		if(dni.val()===''){
+			respuestaJS.mensaje = "El dni es requerido";
+			validacionesOk = false;
+		}
+		if(direccion1.val()===''){
+			respuestaJS.mensaje = "La direccion es requerida";
+			validacionesOk = false;
+		}
+		if(!validacionesOk){
+			setTimeout(function(){
+				if(typeof(_callback)==="function"){
+					_callback(respuestaJS);
+				}else{
+					console.error(respuestaJS.mensaje);
+				}
+			}, 1500);
+			return false;
+		}
+		
+		//proceso
+		$('.form-label--email').html(email.val());
+		$('.form-label--address-summary-1').html(direccion1.val()+(direccion2.val()!==""?(' - '+direccion2.val()):''));
+		$('.form-label--address-summary-2').html(recibe_pedido.val());
+		
+		setTimeout(function(){
+			$('#formTab1').removeClass('form-tab-active');
+			$('#formTab2').addClass('form-tab-active');
+			$('.steps .step-1').removeClass('active');
+			$('.steps .step-2').addClass('active');
+			respuestaJS.processOk = true;
+			if(typeof(_callback)==="function")
+				_callback(respuestaJS);
+		}, 1500);
+	}, 
+	procesarFormulario2: function procesarFormulario2(_callback){
+		var _this = this;
+		var respuestaJS = { processOk: false, mensaje: "" };
+		var validacionesOk = true;
+		var email = $('#email');
+		var nombre = $('#nombre');
+		var apellidos = $('#apellidos');
+		var dni = $('#dni');
+		var tipo_direccion = $('#tipo_direccion');
+		var direccion1 = $('#direccion1');
+		var direccion2 = $('#direccion2');
+		var recibe_pedido = $('#recibe_pedido');
+		
+		_this.vaciarCarrito();
+		
+		setTimeout(function(){
+			//$('#formTab1').removeClass('form-tab-active');
+			//$('#formTab2').addClass('form-tab-active');
+			
+			respuestaJS.processOk = true;
+			if(typeof(_callback)==="function")
+				_callback(respuestaJS);
+		}, 1500);
 	}
 };
 
@@ -270,6 +387,65 @@ $(document).on('click', '.add-to-cart', function(e){
 		button.removeAttr("disabled");
 		button.html("Agregar a carrito");
 	});
+});
+$(document).on('click', '.delete-item-cart', function(e){
+	e.preventDefault();
+	var button = $(this);
+	button.attr("disabled", "disabled");
+	if(confirm("¿Deseas retirar este producto de tu carrito?")){
+		var id = button.attr("data-id");
+		diarsfy.removerDelCarrito(id, function(res){
+			//callback
+			console.log(res);
+			button.removeAttr("disabled");
+		});
+	}
+});
+$(document).on('click', '#vaciarCarrito', function(e){
+	e.preventDefault();
+	var button = $(this);
+	if(confirm("¿Deseas remover todos los productos de tu carrito?")){
+		button.attr("disabled", "disabled");
+		button.html('Limpiando...');
+		diarsfy.vaciarCarrito();
+		setTimeout(function(){
+			location.reload();
+		}, 1500);
+	}
+});
+$(document).on('click', '#irAlCheckout', function(e){
+	e.preventDefault();
+	var button = $(this);
+	button.attr("disabled", "disabled");
+	button.html('Redirigiendo...');
+	setTimeout(function(){
+		top.location.href = "/checkout";
+	}, 1500);
+});
+$(document).on('click', '#btnSubmitCheckout', function(e){
+	e.preventDefault();
+	var button = $(this);
+	button.attr("disabled", "disabled");
+	button.html('Procesando...');
+	
+	var step = button.attr("data-step");
+	switch(step){
+		case "1": 
+			diarsfy.procesarFormulario1(function(res){
+				console.log(res);
+				button.removeAttr("disabled");
+				button.html('Ir a pagar');
+				button.attr('data-step', '2');
+			});
+			break;
+		case "2": 
+			diarsfy.procesarFormulario2(function(res){
+				console.log(res);
+				alert("Proceso terminado satisfactoriamente");
+				top.location.href = "/catalogo";
+			});
+			break;
+	}
 });
 $(document).on('click', '.plus', function(e){
 	e.preventDefault();
@@ -300,22 +476,9 @@ $(document).on('click', '.plus', function(e){
 	console.log(carritojs);
 	//});
 });
-$(document).on('click', '.delete-item-cart', function(e){
-	e.preventDefault();
-	var button = $(this);
-	button.attr("disabled", "disabled");
-	if(confirm("¿Deseas retirar este producto de tu carrito?")){
-		var id = button.attr("data-id");
-		diarsfy.removerDelCarrito(id, function(res){
-			//callback
-			console.log(res);
-			button.removeAttr("disabled");
-		});
-	}
-});
-
 $(document).ready(function(){
 	console.log(diarsfy.bienvenido());
 	diarsfy.renderMiniCart();
 	diarsfy.renderCarrito();
+	diarsfy.renderCheckout();
 });
