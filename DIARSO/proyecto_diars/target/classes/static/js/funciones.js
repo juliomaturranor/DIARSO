@@ -115,7 +115,8 @@ var diarsfy = {
 						_table += '<td scope="row">'+(i+1)+'</th>';
 						_table += '<td class="picture-cart"><img src="uploads/'+row.foto+'" alt="'+row.nombre+'" /></td>';
 						_table += '<td class="description-cart">'+row.nombre+' <small>'+row.descripcion+'</small></td>';
-						_table += '<td class="quantity-cart">'+row.cantidad+'</td>';
+						_table += '<td class="cant-controller"><a class="minus" href=""><span>-</span></a><span class="quantity-cart" th:data-product="${producto}">'+row.cantidad+'</span><a class="plus" href=""><span>+</span></a></td>';
+						//_table += '<td class="quantity-cart">'+row.cantidad+'</td>';
 						_table += '<td class="money-cart">'+_this.formatoMoneda(row.subtotal)+'</td>';
 						_table += '<td class="remove-cart"><a href="javascript:void(0);" class="delete-item-cart" data-id="'+row.id+'"><svg class="svg-inline--fa fa-trash fa-w-14" aria-hidden="true" data-prefix="fa" data-icon="trash" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" data-fa-i2svg=""><path fill="currentColor" d="M0 84V56c0-13.3 10.7-24 24-24h112l9.4-18.7c4-8.2 12.3-13.3 21.4-13.3h114.3c9.1 0 17.4 5.1 21.5 13.3L312 32h112c13.3 0 24 10.7 24 24v28c0 6.6-5.4 12-12 12H12C5.4 96 0 90.6 0 84zm415.2 56.7L394.8 467c-1.6 25.3-22.6 45-47.9 45H101.1c-25.3 0-46.3-19.7-47.9-45L32.8 140.7c-.4-6.9 5.1-12.7 12-12.7h358.5c6.8 0 12.3 5.8 11.9 12.7z"></path></svg></a></td>';
 					_table += '</tr>';
@@ -124,47 +125,10 @@ var diarsfy = {
 			$('.carrito-items-all').html(totalItems>0?('Tienes '+totalItems+' items'):'Tu carrito está vacío');
 			$('.carrito-items-table tbody').html(_table!==''?_table:'<tr><td colspan="6"></td></tr>');
 			$('.subtotal-cart').html(_this.formatoMoneda(totalPrice));
-			if(totalItems>0){
-				$('#vaciarCarrito').removeAttr("disabled");
-				$('#irAlCheckout').removeAttr("disabled");
-			}
-			else{
-				$('#vaciarCarrito').attr("disabled", "disabled");
-				$('#irAlCheckout').attr("disabled", "disabled");
-			}
-		}
-	},
-	renderCheckout: function renderCheckout(){
-		var _this = this;
-		if($('#table_items').length){
-			var carritojs = $.cookie('carritojs');
-			var _table = '', _summary = '';
-			if(typeof(carritojs)!=="undefined" && _this.isJSON(carritojs)){
-				var carrito = JSON.parse(carritojs);
-				for(var i=0; i<carrito.items.length; i++){
-					var row = carrito.items[i];
-					_table += '<div class="tr-row">';
-						_table += '<div class="tr-thumbnail">';
-							_table += '<div class="thumbnail">';
-								_table += '<img src="uploads/'+row.foto+'" alt="'+row.nombre+'" />';
-								_table += '<span class="quantity">'+row.cantidad+'</span>';
-							_table += '</div>';
-						_table += '</div>';
-						_table += '<div class="tr-description">';
-							_table += '<div class="emphasis">'+row.nombre+'</div>';
-							_table += '<div class="small">'+row.descripcion+'</div>';
-						_table += '</div>';
-						_table += '<div class="tr-price">';
-							_table += '<div class="money">'+_this.formatoMoneda(row.subtotal)+'</div>';
-						_table += '</div>';
-					_table += '</div>';
-				}
-				_summary += '<div class="subtotal"><span>Subtotal</span><span class="money">'+_this.formatoMoneda(carrito.total)+'</span></div>';
-				_summary += '<div class="impuestos"><span>Impuestos</span><span class="money">'+_this.formatoMoneda(0)+'</span></div>';
-				_summary += '<div class="total"><span>Total</span><span class="money">'+_this.formatoMoneda(carrito.total)+'</span></div>';
-			}
-			$('#table_items').html(_table!==''?_table:'');
-			$('#table_summary').html(_summary!==''?_summary:'');
+			if(totalItems>0)
+				$('.irAlCheckout').removeAttr("disabled");
+			else
+				$('.irAlCheckout').attr("disabled", "disabled");
 		}
 	},
 	vaciarCarrito: function vaciarCarrito(){
@@ -286,86 +250,6 @@ var diarsfy = {
 			if(typeof(_callback)==="function")
 				_callback(respuestaJS);
 		}, 1500);
-	}, 
-	procesarFormulario1: function procesarFormulario1(_callback){
-		var _this = this;
-		var respuestaJS = { processOk: false, mensaje: "" };
-		var validacionesOk = true;
-		var email = $('#email');
-		var nombre = $('#nombre');
-		var apellidos = $('#apellidos');
-		var dni = $('#dni');
-		var tipo_direccion = $('#tipo_direccion');
-		var direccion1 = $('#direccion1');
-		var direccion2 = $('#direccion2');
-		var recibe_pedido = $('#recibe_pedido');
-		
-		//validaciones
-		if(email.val()===''){
-			respuestaJS.mensaje = "El email es requerido";
-			validacionesOk = false;
-		}
-		if(nombre.val()===''){
-			respuestaJS.mensaje = "El nombre es requerido";
-			validacionesOk = false;
-		}
-		if(dni.val()===''){
-			respuestaJS.mensaje = "El dni es requerido";
-			validacionesOk = false;
-		}
-		if(direccion1.val()===''){
-			respuestaJS.mensaje = "La direccion es requerida";
-			validacionesOk = false;
-		}
-		if(!validacionesOk){
-			setTimeout(function(){
-				if(typeof(_callback)==="function"){
-					_callback(respuestaJS);
-				}else{
-					console.error(respuestaJS.mensaje);
-				}
-			}, 1500);
-			return false;
-		}
-		
-		//proceso
-		$('.form-label--email').html(email.val());
-		$('.form-label--address-summary-1').html(direccion1.val()+(direccion2.val()!==""?(' - '+direccion2.val()):''));
-		$('.form-label--address-summary-2').html(recibe_pedido.val());
-		
-		setTimeout(function(){
-			$('#formTab1').removeClass('form-tab-active');
-			$('#formTab2').addClass('form-tab-active');
-			$('.steps .step-1').removeClass('active');
-			$('.steps .step-2').addClass('active');
-			respuestaJS.processOk = true;
-			if(typeof(_callback)==="function")
-				_callback(respuestaJS);
-		}, 1500);
-	}, 
-	procesarFormulario2: function procesarFormulario2(_callback){
-		var _this = this;
-		var respuestaJS = { processOk: false, mensaje: "" };
-		var validacionesOk = true;
-		var email = $('#email');
-		var nombre = $('#nombre');
-		var apellidos = $('#apellidos');
-		var dni = $('#dni');
-		var tipo_direccion = $('#tipo_direccion');
-		var direccion1 = $('#direccion1');
-		var direccion2 = $('#direccion2');
-		var recibe_pedido = $('#recibe_pedido');
-		
-		_this.vaciarCarrito();
-		
-		setTimeout(function(){
-			//$('#formTab1').removeClass('form-tab-active');
-			//$('#formTab2').addClass('form-tab-active');
-			
-			respuestaJS.processOk = true;
-			if(typeof(_callback)==="function")
-				_callback(respuestaJS);
-		}, 1500);
 	}
 };
 
@@ -387,6 +271,35 @@ $(document).on('click', '.add-to-cart', function(e){
 		button.html("Agregar a carrito");
 	});
 });
+$(document).on('click', '.plus', function(e){
+	e.preventDefault();
+	var span = $(this);
+	var carritojs = $.cookie('carritojs');
+	if(typeof(carritojs)!=="undefined" && _this.isJSON(carritojs)){
+		carrito = JSON.parse(carritojs);
+	}else{
+		carrito = {
+			usuario: {},
+			items: [], 
+			total: 0
+		};
+	}
+	//var cantidad = 1;
+	//var agregar = {
+		//id: producto.idproducto,// id de producto
+		//cantidad: cantidad // cantidad numérica
+	//};
+	//button.attr("disabled", "disabled");
+	//button.html("Agregando...");
+	//diarsfy.agregarAlCarrito(agregar, producto, function(res){
+		//callback
+		//console.log(res);
+		//button.removeAttr("disabled");
+		//cantidad+=cantidad;
+		//button.html("Agregar a carrito");
+	console.log(carritojs);
+	//});
+});
 $(document).on('click', '.delete-item-cart', function(e){
 	e.preventDefault();
 	var button = $(this);
@@ -400,56 +313,9 @@ $(document).on('click', '.delete-item-cart', function(e){
 		});
 	}
 });
-$(document).on('click', '#vaciarCarrito', function(e){
-	e.preventDefault();
-	var button = $(this);
-	if(confirm("¿Deseas remover todos los productos de tu carrito?")){
-		button.attr("disabled", "disabled");
-		button.html('Limpiando...');
-		diarsfy.vaciarCarrito();
-		setTimeout(function(){
-			location.reload();
-		}, 1500);
-	}
-});
-$(document).on('click', '#irAlCheckout', function(e){
-	e.preventDefault();
-	var button = $(this);
-	button.attr("disabled", "disabled");
-	button.html('Redirigiendo...');
-	setTimeout(function(){
-		top.location.href = "/checkout";
-	}, 1500);
-});
-$(document).on('click', '#btnSubmitCheckout', function(e){
-	e.preventDefault();
-	var button = $(this);
-	button.attr("disabled", "disabled");
-	button.html('Procesando...');
-	
-	var step = button.attr("data-step");
-	switch(step){
-		case "1": 
-			diarsfy.procesarFormulario1(function(res){
-				console.log(res);
-				button.removeAttr("disabled");
-				button.html('Ir a pagar');
-				button.attr('data-step', '2');
-			});
-			break;
-		case "2": 
-			diarsfy.procesarFormulario2(function(res){
-				console.log(res);
-				alert("Proceso terminado satisfactoriamente");
-				top.location.href = "/catalogo";
-			});
-			break;
-	}
-});
 
 $(document).ready(function(){
 	console.log(diarsfy.bienvenido());
 	diarsfy.renderMiniCart();
 	diarsfy.renderCarrito();
-	diarsfy.renderCheckout();
 });

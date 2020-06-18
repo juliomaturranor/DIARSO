@@ -429,7 +429,13 @@
 	border-radius: 50%;
 	position: relative;
 }
-
+a.minus, a.plus, .quantity-cart {
+    padding: 0 10px;
+    border: 1px solid lightgray;
+}
+td.cant-controller {
+    text-align: center;
+}
 
 
 
