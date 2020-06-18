@@ -48,7 +48,7 @@ public class ProductosController {
 		model.addAttribute("producto", new Producto());
 		return "producto";
 	}
-    /*
+   /*
 	int item;
 	double totalPagar= 0.0;
 	int cantidad= 1;
@@ -58,7 +58,7 @@ public class ProductosController {
 		model.addAttribute("producto", carritoprods);
 		return  "producto";		
 	}
-	*/
+*/
 	
 
 	/*
