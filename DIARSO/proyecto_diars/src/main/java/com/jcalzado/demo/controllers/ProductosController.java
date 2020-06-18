@@ -163,13 +163,13 @@ public class ProductosController {
 		model.addAttribute("productos", productos);
 		return "catalago";
 	}
-	/*
+	
 	@GetMapping("/carrito")
 	public String listarcarrito(Model model) {
 		model.addAttribute("producto", new Producto());
 		return "carrito";
 	}
-	*/
+	
 	@GetMapping("/catalogoa")
 	public String listarprueba(Model model) {
 		List<Producto> productos = productoService.listarpro();
