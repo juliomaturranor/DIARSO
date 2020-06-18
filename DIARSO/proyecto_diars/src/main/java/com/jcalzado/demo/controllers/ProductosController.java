@@ -48,7 +48,7 @@ public class ProductosController {
 		model.addAttribute("producto", new Producto());
 		return "producto";
 	}
-
+    /*
 	int item;
 	double totalPagar= 0.0;
 	int cantidad= 1;
@@ -58,7 +58,7 @@ public class ProductosController {
 		model.addAttribute("producto", carritoprods);
 		return  "producto";		
 	}
-	
+	*/
 	
 
 	/*
@@ -163,13 +163,13 @@ public class ProductosController {
 		model.addAttribute("productos", productos);
 		return "catalago";
 	}
-	
+	/*
 	@GetMapping("/carrito")
 	public String listarcarrito(Model model) {
 		model.addAttribute("producto", new Producto());
 		return "carrito";
 	}
-
+	*/
 	@GetMapping("/catalogoa")
 	public String listarprueba(Model model) {
 		List<Producto> productos = productoService.listarpro();
