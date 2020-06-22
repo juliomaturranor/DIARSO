@@ -1,13 +1,10 @@
 package com.jcalzado.demo.service.impl;
 
 import java.util.List;
-
-
-
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
 import com.jcalzado.demo.dao.UsuarioDao;
 import com.jcalzado.demo.model.Usuario;
 import com.jcalzado.demo.service.UsuarioService;
@@ -19,12 +16,29 @@ public class UsuarioServiceImpl implements UsuarioService{
 	@Qualifier("usuariodao")
 	private UsuarioDao usuariodao;
 
+	@Override
+	public int save(Usuario u) {
+		int res=0;
+		Usuario usuario=usuariodao.save(u);
+		if(!usuario.equals(null)) {
+			res=1;
+		}
+		return res;
+	}
 	
-	
+	@Override
+	public int existeUsuario(String correo) {
+		int res = 0;
+		List<Usuario> all = usuariodao.findAll();
+		for(Usuario u: all) {
+			if(u.getCorreo().equals(correo))
+				res = u.getIdusuario();
+		}
+		return res;
+	}
 	
 	@Override
 	public List<Usuario> listarusu() {
-	
 		return usuariodao.findAll();
 	}
 	
@@ -58,6 +72,11 @@ public class UsuarioServiceImpl implements UsuarioService{
 			res=false;
 		}
 		return res;
+	}
+	
+	@Override
+	public Optional<Usuario> buscarxid(int id) {
+		return usuariodao.findById(id);
 	}
 	
 }

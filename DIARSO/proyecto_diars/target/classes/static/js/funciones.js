@@ -57,6 +57,36 @@ var diarsfy = {
 	    }
 	    return true;
 	},
+	isEMAIL: function isEMAIL(str){
+	  const re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+	  return re.test(str);
+	},
+	isDNI: function isDNI(str){
+		return str.length===8;
+		/*
+		if (/\d{8}[a-z A-Z]/.test(str)) {
+			var n = str.substr(0,8);
+			var c = str.substr(8,1);
+			return (c.toUpperCase() == 'TRWAGMYFPDXBNJZSQVHLCKET'.charAt(n%23)); // DNI correcto ?
+		}
+		return false;// DNI incorrecto
+		*/
+	},
+	validacionesInput: function validacionesInput(type, str){
+		var _this = this;
+		switch(type){
+			case 'email': 
+				return _this.isEMAIL(str);
+				break;
+			case 'dni':
+				return _this.isDNI(str);
+				break;
+			case 'text':
+				return str!=="";
+				break;
+		}
+		return true;
+	},
 	formatoMoneda: function formatoMoneda(amount, decimals=2){
 		var _this = this;
 	    amount += ''; // por si pasan un numero en vez de un string
@@ -141,9 +171,20 @@ var diarsfy = {
 			var carritojs = $.cookie('carritojs');
 			var _table = '', _summary = '';
 			if(typeof(carritojs)!=="undefined" && _this.isJSON(carritojs)){
+				var _idproducto='', _cantidad='', _precio='', _subtotal_item='', _nombre_producto='', _descripcion='', _foto='';
+				
 				var carrito = JSON.parse(carritojs);
 				for(var i=0; i<carrito.items.length; i++){
 					var row = carrito.items[i];
+					
+					_idproducto += (_idproducto!==''?';':'')+row.id;
+					_cantidad += (_cantidad!==''?';':'')+row.cantidad;
+					_precio += (_precio!==''?';':'')+row.precio;
+					_subtotal_item += (_subtotal_item!==''?';':'')+row.subtotal;
+					_nombre_producto += (_nombre_producto!==''?';':'')+row.nombre;
+					_descripcion += (_descripcion!==''?';':'')+row.descripcion;
+					_foto += (_foto!==''?';':'')+row.foto;
+					
 					_table += '<div class="tr-row">';
 						_table += '<div class="tr-thumbnail">';
 							_table += '<div class="thumbnail">';
@@ -163,9 +204,42 @@ var diarsfy = {
 				_summary += '<div class="subtotal"><span>Subtotal</span><span class="money">'+_this.formatoMoneda(carrito.total)+'</span></div>';
 				_summary += '<div class="impuestos"><span>Impuestos</span><span class="money">'+_this.formatoMoneda(0)+'</span></div>';
 				_summary += '<div class="total"><span>Total</span><span class="money">'+_this.formatoMoneda(carrito.total)+'</span></div>';
+				
+				$('#subtotal_precio').val(carrito.total);
+				$('#total_impuesto').val(0);
+				$('#total_precio').val(carrito.total);
+				$('#monto').val(carrito.total);
+				$('#lidproducto').val(_idproducto);
+				$('#lcantidad').val(_cantidad);
+				$('#lprecio').val(_precio);
+				$('#lsubtotal_item').val(_subtotal_item);
+				$('#lnombre').val(_nombre_producto);
+				$('#ldescripcion').val(_descripcion);
+				$('#lfoto').val(_foto);
+
+				$('#table_items').html(_table!==''?_table:'');
+				$('#table_summary').html(_summary!==''?_summary:'');
+				$('.checkout-loading').remove();
+			}else{
+				$('.checkout-loading').append('<div class="checkout-overlay">No tiene artículos en su carrito</div>');
+				setTimeout(function(){
+					top.location.href = "/catalogo";
+				}, 2500);
 			}
-			$('#table_items').html(_table!==''?_table:'');
-			$('#table_summary').html(_summary!==''?_summary:'');
+		}
+	},
+	renderThankyou: function renderThankyou(){
+		var _this = this;
+		if($('.template-thankyou').length){
+			if($('.money').length){
+				$('.money').each(function(){
+					var _el = $(this);
+					var _text = _el.text();
+					_el.attr("data-money", _text);
+					_el.html(_this.formatoMoneda(_text));
+				});
+			}
+			$('.checkout-loading').remove();
 		}
 	},
 	vaciarCarrito: function vaciarCarrito(){
@@ -290,83 +364,127 @@ var diarsfy = {
 	}, 
 	procesarFormulario1: function procesarFormulario1(_callback){
 		var _this = this;
-		var respuestaJS = { processOk: false, mensaje: "" };
+		var respuestaJS = { processOk: false, mensaje: "", dataText: "", errores: [] };
 		var validacionesOk = true;
 		var email = $('#email');
 		var nombre = $('#nombre');
 		var apellidos = $('#apellidos');
-		var dni = $('#dni');
-		var tipo_direccion = $('#tipo_direccion');
 		var direccion1 = $('#direccion1');
 		var direccion2 = $('#direccion2');
 		var recibe_pedido = $('#recibe_pedido');
 		
 		//validaciones
-		if(email.val()===''){
-			respuestaJS.mensaje = "El email es requerido";
-			validacionesOk = false;
-		}
-		if(nombre.val()===''){
-			respuestaJS.mensaje = "El nombre es requerido";
-			validacionesOk = false;
-		}
-		if(dni.val()===''){
-			respuestaJS.mensaje = "El dni es requerido";
-			validacionesOk = false;
-		}
-		if(direccion1.val()===''){
-			respuestaJS.mensaje = "La direccion es requerida";
-			validacionesOk = false;
-		}
-		if(!validacionesOk){
-			setTimeout(function(){
-				if(typeof(_callback)==="function"){
-					_callback(respuestaJS);
-				}else{
-					console.error(respuestaJS.mensaje);
-				}
-			}, 1500);
-			return false;
+		if(recibe_pedido.val()===''){
+			recibe_pedido.val(nombre.val()+(apellidos.val()!==""?(" "+apellidos.val()):""));
 		}
 		
 		//proceso
-		$('.form-label--email').html(email.val());
-		$('.form-label--address-summary-1').html(direccion1.val()+(direccion2.val()!==""?(' - '+direccion2.val()):''));
-		$('.form-label--address-summary-2').html(recibe_pedido.val());
-		
-		setTimeout(function(){
-			$('#formTab1').removeClass('form-tab-active');
-			$('#formTab2').addClass('form-tab-active');
-			$('.steps .step-1').removeClass('active');
-			$('.steps .step-2').addClass('active');
-			respuestaJS.processOk = true;
-			if(typeof(_callback)==="function")
-				_callback(respuestaJS);
-		}, 1500);
+		$('.error').remove();
+		$.ajax({
+			url: "/checkout/customer",
+			type: "POST", 
+			data: $("#formCheckout1").serialize(),
+			success: function(res){
+				if(res.status==="200"){
+					$('#idpedido').val(res.data.idpedido);
+					$('#codigopedido').val(res.data.codigoPedido);
+					$('.form-label--email').html(email.val());
+					$('.form-label--address-summary-1').html(direccion1.val()+(direccion2.val()!==""?(', '+direccion2.val()):''));
+					$('.form-label--address-summary-2').html(' - '+recibe_pedido.val());
+					
+					setTimeout(function(){
+						$('#formTab1').removeClass('form-tab-active');
+						$('#formTab2').addClass('form-tab-active');
+						$('.steps .step-1').removeClass('active');
+						$('.steps .step-2').addClass('active');
+						respuestaJS.processOk = true;
+						respuestaJS.mensaje = res.message;
+						respuestaJS.dataText = res.data;
+						if(typeof(_callback)==="function")
+							_callback(respuestaJS);
+					}, 1500);
+				}else{
+					respuestaJS.processOk = false;
+					respuestaJS.mensaje = res.message;
+					respuestaJS.errores = res.data;
+					if(typeof(_callback)==="function")
+						_callback(respuestaJS);
+				}
+			}, 
+			error: function(res){
+				var errors = res.responseJSON.errors;
+				setTimeout(function(){
+					if(errors.length){
+						errors.map(function(v){
+							if(document.getElementById(v.field))
+								$('#'+v.field).after('<small class="error"><strong><mayus>'+v.field.substring(0,1)+'</mayus>'+v.field.substring(1,v.field.length)+'</strong> '+v.defaultMessage+'</small>');
+						});
+						respuestaJS.processOk = false;
+						respuestaJS.mensaje = "Uno o más errores en el resultado";
+						respuestaJS.errores = errors;
+						if(typeof(_callback)==="function")
+							_callback(respuestaJS);
+					}else{
+						$('body').html('<div class="checkout-loading"><div class="checkout-overlay">Ha ocurrido un error desconocido. Cierre su sesión actual y vuelva a intentar luego</div></div>');
+						setTimeout(function(){
+							top.location.href = "/catalogo";
+						}, 3500);
+					}
+				}, 1500);
+			}
+		});
 	}, 
 	procesarFormulario2: function procesarFormulario2(_callback){
 		var _this = this;
-		var respuestaJS = { processOk: false, mensaje: "" };
+		var respuestaJS = { processOk: false, mensaje: "", dataText: "", errores: [] };
 		var validacionesOk = true;
-		var email = $('#email');
-		var nombre = $('#nombre');
-		var apellidos = $('#apellidos');
-		var dni = $('#dni');
-		var tipo_direccion = $('#tipo_direccion');
-		var direccion1 = $('#direccion1');
-		var direccion2 = $('#direccion2');
-		var recibe_pedido = $('#recibe_pedido');
-		
-		_this.vaciarCarrito();
-		
-		setTimeout(function(){
-			//$('#formTab1').removeClass('form-tab-active');
-			//$('#formTab2').addClass('form-tab-active');
-			
-			respuestaJS.processOk = true;
-			if(typeof(_callback)==="function")
-				_callback(respuestaJS);
-		}, 1500);
+		var metodo_pago = $('input[name="metodo"]');
+
+		$.ajax({
+			url: "/checkout/payments",
+			type: "POST", 
+			data: $("#formCheckout2").serialize(),
+			success: function(res){
+				if(res.status==="200"){
+					
+					setTimeout(function(){
+						
+						respuestaJS.processOk = true;
+						respuestaJS.mensaje = res.message;
+						respuestaJS.dataText = res.data;
+						if(typeof(_callback)==="function")
+							_callback(respuestaJS);
+					}, 1500);
+				}else{
+					respuestaJS.processOk = false;
+					respuestaJS.mensaje = res.message;
+					respuestaJS.errores = res.data;
+					if(typeof(_callback)==="function")
+						_callback(respuestaJS);
+				}
+			}, 
+			error: function(res){
+				var errors = res.responseJSON.errors;
+				setTimeout(function(){
+					if(errors.length){
+						errors.map(function(v){
+							if(document.getElementById(v.field))
+								$('#'+v.field).after('<small class="error"><strong><mayus>'+v.field.substring(0,1)+'</mayus>'+v.field.substring(1,v.field.length)+'</strong> '+v.defaultMessage+'</small>');
+						});
+						respuestaJS.processOk = false;
+						respuestaJS.mensaje = "Uno o más errores en el resultado";
+						respuestaJS.errores = errors;
+						if(typeof(_callback)==="function")
+							_callback(respuestaJS);
+					}else{
+						$('body').html('<div class="checkout-loading"><div class="checkout-overlay">Ha ocurrido un error desconocido. Cierre su sesión actual y vuelva a intentar luego</div></div>');
+						setTimeout(function(){
+							top.location.href = "/catalogo";
+						}, 3500);
+					}
+				}, 1500);
+			}
+		});
 	}
 };
 
@@ -422,6 +540,25 @@ $(document).on('click', '#irAlCheckout', function(e){
 		top.location.href = "/checkout";
 	}, 1500);
 });
+$(document).on('keyup', '[required="required"]', function(e){
+	var _this = $(this);
+	var _typeValid = "text";
+	if(_this.attr('data-valid'))
+		_typeValid = _this.attr('data-valid');
+
+	if(!diarsfy.validacionesInput(_typeValid, _this.val())){
+		_this.addClass('input-error');
+		_this.removeClass('input-success');
+	}else{
+		_this.removeClass('input-error');
+		_this.addClass('input-success');
+	}
+
+	if($('.input-success').length === $('[required="required"]').length)
+		$('#btnSubmitCheckout').removeAttr('disabled');
+	else
+		$('#btnSubmitCheckout').attr('disabled', 'disabled');
+});
 $(document).on('click', '#btnSubmitCheckout', function(e){
 	e.preventDefault();
 	var button = $(this);
@@ -433,19 +570,40 @@ $(document).on('click', '#btnSubmitCheckout', function(e){
 		case "1": 
 			diarsfy.procesarFormulario1(function(res){
 				console.log(res);
-				button.removeAttr("disabled");
-				button.html('Ir a pagar');
+				button.html('Procesar pago');
 				button.attr('data-step', '2');
 			});
 			break;
 		case "2": 
 			diarsfy.procesarFormulario2(function(res){
 				console.log(res);
-				alert("Proceso terminado satisfactoriamente");
-				top.location.href = "/catalogo";
+				diarsfy.vaciarCarrito();
+				top.location.href = "/thankyou/"+$('#codigopedido').val();
 			});
 			break;
 	}
+});
+$(document).on('click', '.return-to-cart,.return-to-step', function(e){
+	e.preventDefault();
+	var step = $('#btnSubmitCheckout').attr('data-step');
+	switch(step){
+		case "1": 
+			top.location.href = "/carrito";
+			break;
+		case "2": 
+			$('#formTab1').addClass('form-tab-active');
+			$('#formTab2').removeClass('form-tab-active');
+			$('.steps .step-1').addClass('active');
+			$('.steps .step-2').removeClass('active');
+			$('#btnSubmitCheckout').attr('data-step', '1');
+			break;
+	}
+});
+$(document).on('change', 'input[name="metodo"]', function(e){
+	e.preventDefault();
+	var radioId = $(this).attr('id');
+	$('#'+(radioId.replace('metodo_', 'moneda_'))).trigger('click');
+	$('#btnSubmitCheckout').removeAttr('disabled');
 });
 $(document).on('click', '.plus', function(e){
 	e.preventDefault();
@@ -481,4 +639,5 @@ $(document).ready(function(){
 	diarsfy.renderMiniCart();
 	diarsfy.renderCarrito();
 	diarsfy.renderCheckout();
+	diarsfy.renderThankyou();
 });

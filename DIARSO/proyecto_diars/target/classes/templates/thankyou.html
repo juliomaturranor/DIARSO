@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8" />
+	<title>Thank You</title>
+	<link rel="icon" type="image/png" th:href="@{/img/favicon.png}">
+	<link rel="stylesheet" type="text/css" th:href="@{/css/bootstrap.min.css}" />
+	<link rel="stylesheet" type="text/css" th:href="@{/css/custom.css}" />
+	<script type="text/javascript" th:src="@{/js/jquery-3.5.1.min.js}"></script>
+	<script type="text/javascript" th:src="@{/js/bootstrap.min.js}"></script>
+	<script type="text/javascript" th:src="@{/js/popper.min.js}"></script>
+	<script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+	<script type="text/javascript" th:src="@{/js/jquery.cookie.js}"></script>
+	<script th:src="@{/js/funciones.js}"></script>
+</head>
+<body class="template-thankyou">
+	<div class="checkout-loading"></div>
+	<div class="container content">
+		<div class="row">
+			<div class="col-md-7">
+				<div class="column-left">
+					<div class="custom-header">
+						<div class="title"><h2 th:text="'Pedido&nbsp;&nbsp;#'+${pedido.codigo}"></h2></div>
+					</div>
+					<div class="form-tabs">
+						<br />
+						<div class="row bloque-titulo">
+							<div class="col-md-12" style="position:relative;">
+								<label class="inline titulo">¡Felicidades!. Completaste tu pedido correctamente.</label>
+								<div class="pic-felicidades">
+									<img src="../img/felicidades.png"/>
+								</div>
+							</div>
+						</div>
+						<br />
+						<div class="row bloque-titulo">
+							<div class="col-md-12">
+								<label class="inline titulo">Detalles</label>
+							</div>
+						</div>
+						<div class="row bloque-titulo">
+							<div class="col-md-12">
+								<div class="section">
+									<div class="content-box">
+										<div role="table" class="content-box__row content-box__row--tight-spacing-vertical">
+											<div role="row" class="review-block">
+												<div class="review-block__inner">
+													<div role="rowheader" class="review-block__label">
+														<font style="vertical-align: inherit;">
+															<font style="vertical-align: inherit;">Contacto</font>
+														</font>
+													</div>
+													<div role="cell" class="review-block__content">
+														<bdo dir="ltr">
+															<font style="vertical-align: inherit;">
+																<font style="vertical-align: inherit;" class="form-label--email" th:text="${pedido.email}"></font>
+															</font>
+														</bdo>
+													</div>
+												</div>
+												<div role="cell" class="review-block__link">
+												</div>
+											</div>   
+											<div role="row" class="review-block" th:each="envio :${pedido_envios}">
+												<div class="review-block__inner">
+													<div role="rowheader" class="review-block__label">
+														<font style="vertical-align: inherit;">
+															<font style="vertical-align: inherit;">Envíe a</font>
+														</font>
+													</div>
+													<div role="cell" class="review-block__content">
+														<address class="address address--tight">
+															<font style="vertical-align: inherit;">
+																<font style="vertical-align: inherit;" class="form-label--address-summary-1" th:text="${envio.direccion1}"></font>
+																<font style="vertical-align: inherit;" class="form-label--address-summary-2" th:text="'&nbsp;&nbsp;|&nbsp;&nbsp;'+${envio.recibe_pedido}"></font>
+															</font>
+														</address>
+													</div>
+												</div>
+												<div role="cell" class="review-block__link">
+												</div>
+											</div>
+											<div role="row" class="review-block" th:each="pago :${pedido_pagos}">
+												<div class="review-block__inner">
+													<div role="rowheader" class="review-block__label">
+														<font style="vertical-align: inherit;">
+															<font style="vertical-align: inherit;">Pago</font>
+														</font>
+													</div>
+													<div role="cell" class="review-block__content">
+														<address class="address address--tight">
+															<font style="vertical-align: inherit;">
+																<font style="vertical-align: inherit;" class="form-label--address-summary-1" th:text="${pago.metodo} + '&nbsp;&nbsp;/&nbsp;&nbsp;' + ${pago.moneda} + '&nbsp;&nbsp;/&nbsp;&nbsp;' + ${pago.monto}"></font>
+															</font>
+														</address>
+													</div>
+												</div>
+												<div role="cell" class="review-block__link">
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="form-buttons">
+						<div class="row">
+							<div class="col-md-6">
+								<a class="return-to-cart-2" href="/catalogo">Regresar al carrito</a>
+							</div>
+							<div class="col-md-6 text-right">
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-5">
+				<div class="background-right"></div>
+				<div class="column-right">
+					<div class="table_items">
+						<div class="tr-row" th:each="item :${pedido_items}">
+							<div class="tr-thumbnail">
+								<div class="thumbnail">
+									<img th:src="'../uploads/'+${item.foto}" th:alt="${item.nombre}" />
+									<span class="quantity" th:text="${item.cantidad}"></span>
+								</div>
+							</div>
+							<div class="tr-description">
+								<div class="emphasis" th:text="${item.nombre}"></div>
+								<div class="small" th:text="${item.descripcion}"></div>
+							</div>
+							<div class="tr-price">
+								<div class="money" th:text="${item.subtotal_item}"></div>
+							</div>
+						</div>
+					</div>
+					<div class="table_summary">
+						<div class="subtotal"><span>Subtotal</span><span class="money" th:text="${pedido.subtotal_precio}"></span></div>
+						<div class="impuestos"><span>Impuestos</span><span class="money">0</span></div>
+						<div class="total"><span>Total</span><span class="money" th:text="${pedido.total_precio}"></span></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

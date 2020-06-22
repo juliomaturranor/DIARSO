@@ -14,6 +14,7 @@
 	<script th:src="@{/js/funciones.js}"></script>
 </head>
 <body class="template-checkout">
+	<div class="checkout-loading"></div>
 	<div class="container content">
 		<div class="row">
 			<div class="col-md-7">
@@ -28,171 +29,199 @@
 					<div class="form-tabs">
 						<br />
 						<div class="form-tab form-tab-active" id="formTab1">
-							<div class="row bloque-titulo">
-								<div class="col-md-12">
-									<label class="inline titulo">Información de contacto</label>
-									<label class="login">¿Ya tienes una cuenta? <a class="login-a" href="#">Login</a></label>
+							<form id="formCheckout1" th:action="@{/checkout/customer}" th:object="${pedido}" method="POST" enctype="multipart/form-data">
+							
+								<input type="hidden" name="moneda" id="moneda" th:value="${tipo_moneda}" >
+								<input type="hidden" name="estado_pago" id="estado_pago" th:value="${tipo_estadopago}" />
+								<input type="hidden" name="idusuario" id="idusuario" th:value="${idusuario}" />
+								<input type="hidden" name="observaciones" id="observaciones" value="" />
+								<input type="hidden" name="subtotal_precio" id="subtotal_precio" value="0" />
+								<input type="hidden" name="total_impuesto" id="total_impuesto" value="0" />
+								<input type="hidden" name="total_precio" id="total_precio" value="0" />
+								
+								<input type="hidden" name="lidproducto" id="lidproducto" value="0" />
+								<input type="hidden" name="lcantidad" id="lcantidad" value="0" />
+								<input type="hidden" name="lprecio" id="lprecio" value="0" />
+								<input type="hidden" name="lsubtotal_item" id="lsubtotal_item" value="0" />
+								<input type="hidden" name="lnombre" id="lnombre" value="" />
+								<input type="hidden" name="ldescripcion" id="ldescripcion" value="" />
+								<input type="hidden" name="lfoto" id="lfoto" value="" />
+								
+								<div class="row bloque-titulo">
+									<div class="col-md-12">
+										<label class="inline titulo">Información de contacto</label>
+										<label class="login">¿Ya tienes una cuenta? <a class="login-a" href="#">Login</a></label>
+									</div>
 								</div>
-							</div>
-							<div class="row bloque-input">
-								<div class="col-md-12">
-									<label>Email <span class="required">(*)</span></label>
-									<input type="text" name="email" id="email" required />
+								<div class="row bloque-input">
+									<div class="col-md-12">
+										<label>Email <span class="required">(*)</span></label>
+										<input type="text" name="email" id="email" data-valid="email" required="required" />
+										<small class="form-text text-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></small>
+									</div>
 								</div>
-							</div>
-							<br />
-							<div class="row bloque-titulo">
-								<div class="col-md-12">
-									<label class="inline titulo">Dirección de envío</label>
+								<br />
+								<div class="row bloque-titulo">
+									<div class="col-md-12">
+										<label class="inline titulo">Dirección de envío</label>
+									</div>
 								</div>
-							</div>
-							<div class="row bloque-input">
-								<div class="col-md-6">
-									<label>Nombre <span class="required">(*)</span></label>
-									<input type="text" name="nombre" id="nombre" required/>
+								<div class="row bloque-input">
+									<div class="col-md-6">
+										<label>Nombre <span class="required">(*)</span></label>
+										<input type="text" name="nombre" id="nombre" required="required" />
+									</div>
+									<div class="col-md-6">
+										<label>Apellidos</label>
+										<input type="text" name="apellidos" id="apellidos" />
+									</div>
 								</div>
-								<div class="col-md-6">
-									<label>Apellidos</label>
-									<input type="text" name="apellidos" id="apellidos" />
+								<div class="row bloque-input">
+									<div class="col-md-6">
+										<label>DNI <span class="required">(*)</span></label>
+										<input type="text" name="dni" id="dni" data-valid="dni" required="required" />
+									</div>
+									<div class="col-md-6">
+										<label>Tipo</label>
+										<select class="custom-select" name="tipo_direccion" id="tipo_direccion">
+											<option th:each="tipod :${tipo_direccion}" th:value="${tipod}" th:text="${tipod}" />
+										</select>
+									</div>
 								</div>
-							</div>
-							<div class="row bloque-input">
-								<div class="col-md-6">
-									<label>DNI <span class="required">(*)</span></label>
-									<input type="text" name="dni" id="dni" required/>
+								<div class="row bloque-input">
+									<div class="col-md-12">
+										<label>Dirección <span class="required">(*)</span></label>
+										<input type="text" name="direccion1" id="direccion1" required="required" />
+									</div>
 								</div>
-								<div class="col-md-6">
-									<label>Tipo</label>
-									<select name="tipo_direccion" id="tipo_direccion">
-										<option class="CASA">Casa</option>
-										<option class="EMPRESA">Empresa</option>
-									</select>
+								<div class="row bloque-input">
+									<div class="col-md-12">
+										<label>Referencias </label>
+										<input type="text" name="direccion2" id="direccion2" />
+									</div>
 								</div>
-							</div>
-							<div class="row bloque-input">
-								<div class="col-md-12">
-									<label>Dirección <span class="required">(*)</span></label>
-									<input type="text" name="direccion1" id="direccion1" required/>
+								<div class="row bloque-input">
+									<div class="col-md-12">
+										<label>¿Quién recepciona pedido? </label>
+										<input type="text" name="recibe_pedido" id="recibe_pedido" />
+									</div>
 								</div>
-							</div>
-							<div class="row bloque-input">
-								<div class="col-md-12">
-									<label>Referencias </label>
-									<input type="text" name="direccion2" id="direccion2" />
-								</div>
-							</div>
-							<div class="row bloque-input">
-								<div class="col-md-12">
-									<label>¿Quién recepciona pedido? </label>
-									<input type="text" name="recibe_pedido" id="recibe_pedido" />
-								</div>
-							</div>
+							</form>
 						</div>
 						<div class="form-tab" id="formTab2">
-							<div class="row bloque-titulo">
-								<div class="col-md-12">
-									<div class="section">
-										<div class="content-box">
-											<div role="table" class="content-box__row content-box__row--tight-spacing-vertical">
-												<div role="row" class="review-block">
-													<div class="review-block__inner">
-														<div role="rowheader" class="review-block__label">
-															<font style="vertical-align: inherit;">
-																<font style="vertical-align: inherit;">Contacto</font>
-															</font>
-														</div>
-														<div role="cell" class="review-block__content">
-															<bdo dir="ltr">
+							<form id="formCheckout2" th:action="@{/checkout/payments}" th:object="${pedidopagos}" method="POST" enctype="multipart/form-data">
+								
+								<input type="hidden" name="idpedido" id="idpedido" value="0"/>
+								<input type="hidden" name="codigopedido" id="codigopedido" value=""/>
+								<input type="hidden" name="monto" id="monto" value="0" />
+								<input type="hidden" name="cuenta" id="cuenta" value=""/>
+								<input type="hidden" name="cuenta_tipo" id="cuenta_tipo" value=""/>
+								<input type="hidden" name="cuenta_fechav" id="cuenta_fechav" value=""/>
+								
+								<div class="row bloque-titulo">
+									<div class="col-md-12">
+										<div class="section">
+											<div class="content-box">
+												<div role="table" class="content-box__row content-box__row--tight-spacing-vertical">
+													<div role="row" class="review-block">
+														<div class="review-block__inner">
+															<div role="rowheader" class="review-block__label">
 																<font style="vertical-align: inherit;">
-																	<font style="vertical-align: inherit;" class="form-label--email"></font>
+																	<font style="vertical-align: inherit;">Contacto</font>
 																</font>
-															</bdo>
+															</div>
+															<div role="cell" class="review-block__content">
+																<bdo dir="ltr">
+																	<font style="vertical-align: inherit;">
+																		<font style="vertical-align: inherit;" class="form-label--email"></font>
+																	</font>
+																</bdo>
+															</div>
 														</div>
-													</div>
-													<div role="cell" class="review-block__link">
-														<a class="link--small" href="#">
-															<span aria-hidden="true">
-																<font style="vertical-align: inherit;">
-																	<font style="vertical-align: inherit;">Cambio</font>
-																</font>
-															</span>
-														</a>
-													</div>
-												</div>   
-												<div role="row" class="review-block">
-													<div class="review-block__inner">
-														<div role="rowheader" class="review-block__label">
-															<font style="vertical-align: inherit;">
-																<font style="vertical-align: inherit;">Envie a</font>
-															</font>
+														<div role="cell" class="review-block__link">
+															<a class="link--small return-to-step" href="javascript:void(0);">
+																<span aria-hidden="true">
+																	<font style="vertical-align: inherit;">
+																		<font style="vertical-align: inherit;">Cambio</font>
+																	</font>
+																</span>
+															</a>
 														</div>
-														<div role="cell" class="review-block__content">
-															<address class="address address--tight">
+													</div>   
+													<div role="row" class="review-block">
+														<div class="review-block__inner">
+															<div role="rowheader" class="review-block__label">
 																<font style="vertical-align: inherit;">
-																	<font style="vertical-align: inherit;" class="form-label--address-summary-1"></font>
-																	<font style="vertical-align: inherit;" class="form-label--address-summary-2"></font>
+																	<font style="vertical-align: inherit;">Envíe a</font>
 																</font>
-															</address>
+															</div>
+															<div role="cell" class="review-block__content">
+																<address class="address address--tight">
+																	<font style="vertical-align: inherit;">
+																		<font style="vertical-align: inherit;" class="form-label--address-summary-1"></font>
+																		<font style="vertical-align: inherit;" class="form-label--address-summary-2"></font>
+																	</font>
+																</address>
+															</div>
 														</div>
-													</div>
-													<div role="cell" class="review-block__link">
-														<a class="link--small" href="#">
-															<span aria-hidden="true">
-																<font style="vertical-align: inherit;">
-																	<font style="vertical-align: inherit;">Cambio</font>
-																</font>
-															</span>          
-														</a>
+														<div role="cell" class="review-block__link">
+															<a class="link--small return-to-step" href="javascript:void(0);">
+																<span aria-hidden="true">
+																	<font style="vertical-align: inherit;">
+																		<font style="vertical-align: inherit;">Cambio</font>
+																	</font>
+																</span>          
+															</a>
+														</div>
 													</div>
 												</div>
 											</div>
 										</div>
 									</div>
 								</div>
-							</div>
-							<div class="row bloque-titulo">
-								<div class="col-md-12">
-									<label class="inline titulo">Métodos de pago</label>
+								<div class="row bloque-titulo">
+									<div class="col-md-12">
+										<label class="inline titulo">Métodos de pago</label>
+									</div>
 								</div>
-							</div>
-							<div class="row bloque-titulo">
-								<div class="col-md-12">
-									<div class="section__content">            
-										<div class="content-box" data-shipping-methods="">
-											<div class="content-box__row">
-												<div class="radio-wrapper" data-shipping-method="shopify-Standard-19.00">
-													<div class="radio__input">
-														<input class="input-radio" data-checkout-total-shipping="€19,00" data-checkout-total-shipping-cents="1900" data-checkout-shipping-rate="€19,00" data-checkout-original-shipping-rate="€19,00" data-checkout-total-price="€466,00" data-checkout-total-price-cents="46600" data-checkout-payment-due="€466,00" data-checkout-payment-due-cents="46600" data-checkout-payment-subform="required" data-checkout-subtotal-price="€447,00" data-checkout-subtotal-price-cents="44700" data-checkout-total-taxes="€0,00" data-checkout-total-taxes-cents="0" data-backup="shopify-Standard-19.00" aria-label="Estándar.  € 19,00" type="radio" value="shopify-Standard-19.00" name="checkout[shipping_rate][id]" id="checkout_shipping_rate_id_shopify-standard-19_00" checked="checked">
-													</div>
-													<label class="radio__label" aria-hidden="true" for="checkout_shipping_rate_id_shopify-standard-19_00">
-														<span class="radio__label__primary" data-shipping-method-label-title="Standard">
-															<font style="vertical-align: inherit;">
-																<font style="vertical-align: inherit;">Pago contra entrega</font>
-															</font>
-														</span>
-														<span class="radio__label__accessory">
-															<span class="content-box__emphasis">
+								<div class="row bloque-titulo">
+									<div class="col-md-12">
+										<div class="section__content">            
+											<div class="content-box">
+											
+												<div class="content-box__row custom-payment-methods" th:each="mp :${metodos_pago}">
+													<div class="radio-wrapper">
+														<div class="radio__input">
+															<input class="input-radio" type="radio" th:value="${mp.pay_codigo}" name="metodo" th:id="'metodo_'+${mp.pay_codigo}"/>
+															<input class="hide" type="radio" th:value="${mp.pay_moneda}" name="moneda" th:id="'moneda_'+${mp.pay_codigo}"/>
+														</div>
+														<label class="radio__label" aria-hidden="true" th:for="'metodo_'+${mp.pay_codigo}">
+															<span class="radio__label__primary">
 																<font style="vertical-align: inherit;">
-																	<font style="vertical-align: inherit;"></font>
+																	<font style="vertical-align: inherit;" th:text="${mp.pay_nombre}"></font>
 																</font>
 															</span>
-														</span>
-													</label>
-												</div><!-- /radio-wrapper-->
+															<span class="radio__label__accessory">
+																<img th:src="${mp.pay_imagen}" th:alt="${mp.pay_nombre}" th:class="'metodo_'+${mp.pay_codigo.toLowerCase()}"/>
+															</span>
+														</label>
+													</div>
+												</div>
+												
 											</div>
 										</div>
 									</div>
 								</div>
-							</div>
+							</form>
 						</div>
 					</div>
 					<div class="form-buttons">
 						<div class="row">
 							<div class="col-md-6">
-								<a class="return-to-cart" href="/carrito">Regresar al carrito</a>
+								<a class="return-to-cart" href="javascript:void(0);">Regresar al carrito</a>
 							</div>
 							<div class="col-md-6 text-right">
-								<button type="button" class="btn btn-sm btn-primary btn-submit-js" id="btnSubmitCheckout" data-step="1">
+								<button type="button" class="btn btn-sm btn-primary btn-submit-js" id="btnSubmitCheckout" data-step="1" disabled>
 									Ir a pagar
 								</button>
 							</div>
