@@ -204,21 +204,6 @@ public class ProductosController {
 		return "login";
 	}
 	
-	@GetMapping("/registrar")
-	public String registrar(Model model) {
-		model.addAttribute("usuario", new Usuario());
-		return "registrarcliente";
-	}
 	
-	@PostMapping("/registrar")
-	public String guardarcli(@Valid Usuario u,BindingResult result){
-		if(result.hasErrors()) {
-			return "registrarcliente";
-		}else {
-			usuarioservice.save(u);
-		}
-				
-		return "redirect:/login";
-	}
 
 }
